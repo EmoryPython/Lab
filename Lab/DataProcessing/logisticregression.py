@@ -1,11 +1,11 @@
 # performing logisticregression on heart disee
 # import required modules
-%matplotlib inline
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from collections import Counter
-from pprint import pprint
+#%matplotlib inline # sets the backend of matplotlib to the 'inline' backend
+import pandas as pd # Python Data Analysis Library
+import numpy as np  # NumPy is the fundamental package for scientific computing with Python
+import matplotlib.pyplot as plt # Matplotlib is a Python 2D plotting library
+from collections import Counter 
+from pprint import pprint 
 
 
 #Reading data
@@ -13,7 +13,7 @@ from pprint import pprint
 columns = ["age", "sex", "cp", "restbp", "chol", "fbs", "restecg", 
            "thalach", "exang", "oldpeak", "slope", "ca", "thal", "num"]
 #Reading the data fron CSV file using pandas and creating dataframe.
-df0 = pd.read_table("processed.cleveland.data..csv", sep=',', header=None, names=columns)
+df0 = pd.read_table("processed.cleveland.data.csv", sep=',', header=None, names=columns)
 
 
 
@@ -30,6 +30,138 @@ df0.shape
 
 #Checking feature information
 df0.info()
+
+
+ 
+
+# calculates the intrinsic discrepancy (a symmetrized Kullback-Leibler distance) between them.
+
+def intrinsic_discrepancy(x,y):
+
+    assert len(x)==len(y)
+
+    sumx = sum(xval for xval in x)
+
+    sumy = sum(yval for yval in y)
+
+    id1  = 0.0
+
+    id2  = 0.0
+
+    for (xval,yval) in zip(x,y):
+
+        if (xval>0) and (yval>0):
+
+            id1 += (float(xval)/sumx) * np.log((float(xval)/sumx)/(float(yval)/sumy))
+
+            id2 += (float(yval)/sumy) * np.log((float(yval)/sumy)/(float(xval)/sumx))
+
+    return min(id1,id2)
+
+
+
+
+# Compute intrinsic discrepancies between disease and no-disease feature distributions
+
+int_discr = {}
+
+hist,bin_edges   = np.histogram(df0.age,density=False)
+
+hist1,bin_edges1 = np.histogram(df0[df0.num>0].age,bins=bin_edges,density=False)
+
+hist2,bin_edges2 = np.histogram(df0[df0.num==0].age,bins=bin_edges,density=False)
+
+int_discr["age"] = intrinsic_discrepancy(hist1,hist2)
+
+hist1,bin_edges1 = np.histogram(df0[df0.num>0].sex,bins=(-0.5,0.5,1.5),density=False)
+
+hist2,bin_edges2 = np.histogram(df0[df0.num==0].sex,bins=(-0.5,0.5,1.5),density=False)
+
+int_discr["sex"] = intrinsic_discrepancy(hist1,hist2)
+
+hist1,bin_edges1 = np.histogram(df0[df0.num>0].cp,bins=(0.5,1.5,2.5,3.5,4.5),density=False)
+
+hist2,bin_edges2 = np.histogram(df0[df0.num==0].cp,bins=(0.5,1.5,2.5,3.5,4.5),density=False)
+
+int_discr["cp"] = intrinsic_discrepancy(hist1,hist2)
+
+hist,bin_edges   = np.histogram(df0.restbp,density=False)
+
+hist1,bin_edges1 = np.histogram(df0[df0.num>0].restbp,bins=bin_edges,density=False)
+
+hist2,bin_edges2 = np.histogram(df0[df0.num==0].restbp,bins=bin_edges,density=False)
+
+int_discr["restbp"] = intrinsic_discrepancy(hist1,hist2)
+
+hist,bin_edges   = np.histogram(df0.chol,density=False)
+
+hist1,bin_edges1 = np.histogram(df0[df0.num>0].chol,bins=bin_edges,density=False)
+
+hist2,bin_edges2 = np.histogram(df0[df0.num==0].chol,bins=bin_edges,density=False)
+
+int_discr["chol"] = intrinsic_discrepancy(hist1,hist2)
+
+hist1,bin_edges1 = np.histogram(df0[df0.num>0].fbs,bins=(-0.5,0.5,1.5),density=False)
+
+hist2,bin_edges2 = np.histogram(df0[df0.num==0].fbs,bins=(-0.5,0.5,1.5),density=False)
+
+int_discr["fbs"] = intrinsic_discrepancy(hist1,hist2)
+
+hist1,bin_edges1 = np.histogram(df0[df0.num>0].restecg,bins=(-0.5,0.5,1.5,2.5),density=False)
+
+hist2,bin_edges2 = np.histogram(df0[df0.num==0].restecg,bins=(-0.5,0.5,1.5,2.5),density=False)
+
+int_discr["restecg"] = intrinsic_discrepancy(hist1,hist2)
+
+hist,bin_edges   = np.histogram(df0.thalach,density=False)
+
+hist1,bin_edges1 = np.histogram(df0[df0.num>0].thalach,bins=bin_edges,density=False)
+
+hist2,bin_edges2 = np.histogram(df0[df0.num==0].thalach,bins=bin_edges,density=False)
+
+int_discr["thalach"] = intrinsic_discrepancy(hist1,hist2)
+
+hist1,bin_edges1 = np.histogram(df0[df0.num>0].exang,bins=(-0.5,0.5,1.5),density=False)
+
+hist2,bin_edges2 = np.histogram(df0[df0.num==0].exang,bins=(-0.5,0.5,1.5),density=False)
+
+int_discr["exang"] = intrinsic_discrepancy(hist1,hist2)
+
+hist,bin_edges   = np.histogram(df0.oldpeak,density=False)
+
+hist1,bin_edges1 = np.histogram(df0[df0.num>0].oldpeak,bins=bin_edges,density=False)
+
+hist2,bin_edges2 = np.histogram(df0[df0.num==0].oldpeak,bins=bin_edges,density=False)
+
+int_discr["oldpeak"] = intrinsic_discrepancy(hist1,hist2)
+
+hist1,bin_edges1 = np.histogram(df0[df0.num>0].slope,bins=(0.5,1.5,2.5,3.5),density=False)
+
+hist2,bin_edges2 = np.histogram(df0[df0.num==0].slope,bins=(0.5,1.5,2.5,3.5),density=False)
+
+int_discr["slope"] = intrinsic_discrepancy(hist1,hist2)
+
+hist1,bin_edges1 = np.histogram(df0[df0.num>0].ca,bins=(-0.5,0.5,1.5,2.5,3.5),density=False)
+
+hist2,bin_edges2 = np.histogram(df0[df0.num==0].ca,bins=(-0.5,0.5,1.5,2.5,3.5),density=False)
+
+int_discr["ca"] = intrinsic_discrepancy(hist1,hist2)
+
+hist1,bin_edges1 = np.histogram(df0[df0.num>0].thal,bins=(2.5,3.5,6.5,7.5),density=False)
+
+hist2,bin_edges2 = np.histogram(df0[df0.num==0].thal,bins=(2.5,3.5,6.5,7.5),density=False)
+
+int_discr["thal"] = intrinsic_discrepancy(hist1,hist2)
+
+id_list = Counter(int_discr).most_common()
+
+print ('Intrinsic discrepancies between disease and no-disease, in decreasing order: ')
+
+for item in id_list:
+
+    print ('   %f  (%s)' % (item[1],item[0]))
+
+
 
 
 #Converting categorial values into discrete values
@@ -105,7 +237,7 @@ from sklearn import metrics
 lasso = False
 
 nfeatures = len(stddf.columns)
-if lasso:           # lasso regularization
+if lasso:           # lasso regularization (least absolute shrinkage and selection operator)
     penalty = "l1"
     cval    = 1.0
     alpha   = [1.0]*nfeatures
